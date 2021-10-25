@@ -13,5 +13,5 @@
 static char *global_captive_portal_url;
 static unsigned int global_captive_portal_port;
 
-void *captive_portal_handler(void *sock_arg);
+void* captive_portal_handler(void *sock_arg);
 void captive_portal_redirect_socket_to_url(int socket, const char *url);
