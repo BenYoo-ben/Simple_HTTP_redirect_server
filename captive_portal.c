@@ -1,5 +1,5 @@
 #include "captive_portal.h"
-
+#include "get_page.h"
 
 pthread_mutex_t captive_portal_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t captive_portal_cond = PTHREAD_COND_INITIALIZER;
