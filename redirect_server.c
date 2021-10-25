@@ -1,9 +1,5 @@
-#include "captive_portal.h"
+#include "redirect_server.h"
 #include "get_page.h"
-
-//mutex and cond initialized for future development, not used yet.
-pthread_mutex_t captive_portal_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t captive_portal_cond = PTHREAD_COND_INITIALIZER;
 
 int main(int argc, char *argv[]) {
 
@@ -13,8 +9,8 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 	//make a copy of global static variables.
-	global_captive_portal_url = argv[1];
-	global_captive_portal_port = atoi(argv[2]);
+	global_redirect_server_url = argv[1];
+	global_redirect_server_port = atoi(argv[2]);
 
 	//make server socket
 	int server_socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -30,7 +26,7 @@ int main(int argc, char *argv[]) {
 	memset(&serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_addr.sin_port = htons(__CAPTIVE_PORTAL_PORT__);
+	serv_addr.sin_port = htons(global_redirect_server_port);
 
 	if (bind(server_socket, (struct sockaddr*) &serv_addr, sizeof(serv_addr))
 			< 0) {
@@ -39,7 +35,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	//make server socket to start listen
-	if (listen(server_socket, __CAPTIVE_PORTAL_WAIT_MAX__) < 0) {
+	if (listen(server_socket, __REDIRECT_SERVER_WAIT_MAX__) < 0) {
 		printf("server socket listen fail \n");
 		return 3;
 	}
@@ -65,7 +61,7 @@ int main(int argc, char *argv[]) {
 		pthread_t new_thread;
 
 		//start new working thread to deal with new client
-		pthread_create(&new_thread, NULL, captive_portal_handler,
+		pthread_create(&new_thread, NULL, redirection_handler,
 				pointer_to_client_socket);
 
 	}
@@ -73,16 +69,16 @@ int main(int argc, char *argv[]) {
 }
 
 //thread;
-void* captive_portal_handler(void *sock_arg) {
+void* redirection_handler(void *sock_arg) {
 	int sock = *((int*) sock_arg);
 	//redirect to specific url
-	captive_portal_redirect_socket_to_url(sock, global_captive_portal_url);
+	redirect_socket_to_url(sock, global_redirect_server_url);
 	//free socket
 	free(sock_arg);
 
 }
 
-void captive_portal_redirect_socket_to_url(int socket, const char *url) {
+void redirect_socket_to_url(int socket, const char *url) {
 
 	//basic HTTP response format, might expand with some more headers like Date.
 	char *reply =
