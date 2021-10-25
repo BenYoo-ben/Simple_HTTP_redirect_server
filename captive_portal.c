@@ -3,9 +3,16 @@
 
 pthread_mutex_t captive_portal_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t captive_portal_cond = PTHREAD_COND_INITIALIZER;
-
-int main(){
+int main(int argc, char *argv[]){
 	
+	if(argc!=3){
+		printf("Usage : %s [redirected URL in string format] [# port] \n",argv[0]);
+		exit(1);
+	}
+
+	global_captive_portal_url = argv[1];
+	global_captive_portal_port = atoi(argv[2]);
+
 	int server_socket = socket(PF_INET,SOCK_STREAM,IPPROTO_TCP);
 	
 	if(server_socket < 0)
@@ -59,22 +66,26 @@ int main(){
 
 void *captive_portal_handler(void *sock_arg){
 	int sock = *((int *)sock_arg);
-	captive_portal_redirect_socket_to_url(sock,"www.naver.com");
+	captive_portal_redirect_socket_to_url(sock,global_captive_portal_url);
 	free(sock_arg);
+	
 }
 
 void captive_portal_redirect_socket_to_url(int socket, const char *url){
 	
-	char reply[__CAPTIVE_PORTAL_MTU__];
-	memset(reply,0x0,__CAPTIVE_PORTAL_MTU__);
-	sprintf(reply, "HTTP/1.1 302 Found\r\n");
-	sprintf(reply, "Location: https://www.naver.com/ \r\n");
+	char *reply = "HTTP/1.1 200 OK\nServer: C,libcurl redirection server\nContent-Type: text/html\nConnection: close\n\n";
 
-	char *data = malloc(strlen(reply));
+	char *redirection_page = get_page(url);
+
+	char *data = malloc(strlen(reply)+strlen(redirection_page)+1);
+
 	strcpy(data,reply);
-
+	strcpy(data+strlen(reply),redirection_page);
+	
 	write(socket,data,strlen(data));
-	printf("data sent . \n");
+	printf("redirected to %s \n",url);
 	free(data);
+	free(redirection_page);
+
 }
 

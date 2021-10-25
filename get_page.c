@@ -1,6 +1,6 @@
 #include "get_page.h"
 
-char * get_page(char * url_address)
+char * get_page(const char * url_address)
 {
 	CURL *curl;
 	CURLcode res;
@@ -19,7 +19,8 @@ char * get_page(char * url_address)
 		curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,curl_to_string_callback);
 
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&c_vector);
-
+		
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
 		res = curl_easy_perform(curl);
 
 		if(res!=CURLE_OK){
@@ -28,16 +29,14 @@ char * get_page(char * url_address)
 
 		}
 		else{
-			//status okay	
-			printf("READ : %s\n",c_vector.data);	
+			//status okay
+			return c_vector.data;	
 		}
-		printf("Code : %d\n",res);
-
 		curl_easy_cleanup(curl);
-		
-		return c_vector.data;
+
 	}
-	return 0;
+
+	return NULL;
 }
 
 size_t curl_to_string_callback(void *contents, size_t size, size_t nmemb, void *data)
