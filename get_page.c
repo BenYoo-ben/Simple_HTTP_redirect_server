@@ -55,7 +55,7 @@ size_t curl_to_string_callback(void *contents, size_t size, size_t nmemb,
 	//reallocate buffer to fit actual size
 	char *ptr = realloc(c_vector->data, c_vector->size + realsize + 1);
 
-	if (!contents) {
+	if (!ptr) {
 		//in case of out of memory
 		printf("not enough memory (realloc failed.) \n");
 		return 0;
