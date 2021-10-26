@@ -11,3 +11,9 @@
   In case of HTTP 302 redirection, security problems can be faced if you try to access different domains.  
   This server program makes request to URL to be redirected using libcurl then passes result to clients.  
   In this way cross-domain security problems can be avoided.  
+
+
+  #### Screenshots  
+  ![n1](https://user-images.githubusercontent.com/57353430/138787154-b3a6377e-8a5e-4c24-95df-7d7806a1e6f0.PNG)
+  ##### Redirected to requested URL  
+![n2](https://user-images.githubusercontent.com/57353430/138787191-d7ec851f-2492-43fa-814a-8e320650e522.PNG)
